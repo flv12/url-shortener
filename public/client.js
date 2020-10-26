@@ -1,8 +1,3 @@
-// client-side js
-// run by the browser each time your view template referencing it is loaded
-
-console.log("client.js");
-
 document.getElementById("new-url").addEventListener("click", () => {
   const input = document.querySelector("input.form-control");
   const url = input.value;

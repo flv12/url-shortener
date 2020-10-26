@@ -30,6 +30,14 @@ db.serialize(function () {
   }
 });
 
+function htmlEscape(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // http://expressjs.com/en/starter/basic-routing.html
 
 // ROUTES
@@ -38,22 +46,24 @@ app.get("/", (req, res) => {
 });
 
 app.post("/new", (req, res) => {
-  const nanoid = customAlphabet("1234567890abcdefghijklmnopqrstuvwxyz", 6);
-  // 36^6 possibilités = 2 176 782 336
+  let url = htmlEscape(req.body.url);
 
-  let url = req.body.url;
+  if (url.length != 0) {
+    const nanoid = customAlphabet("1234567890abcdefghijklmnopqrstuvwxyz", 6);
+    // 36^6 possibilités = 2 176 782 336
 
-  const slug = nanoid();
-  res.setHeader("content-type", "text/plain");
+    const slug = nanoid();
+    res.setHeader("content-type", "text/plain");
 
-  res.json({ slug: `/${slug}` });
+    res.json({ slug: `/${slug}` });
 
-  db.run(`INSERT INTO urls (slug, redirectUrl) VALUES ("${slug}","${url}")`);
+    db.run(`INSERT INTO urls (slug, redirectUrl) VALUES ("${slug}","${url}")`);
+  }
 });
 
 app.get("/:slug", (req, res) => {
   // récupèrer le slug dans l'url avec req.params.slug
-  const slug = req.params.slug;
+  const slug = htmlEscape(req.params.slug);
 
   // vérifier la taille du slug
   if (slug.length == 6) {
