@@ -86,9 +86,23 @@ app.get("/:slug", (req, res) => {
 app.delete("/clean", (req, res) => {
   // Deleting all short links
   db.run("DELETE FROM urls", (err) => {
-    if (err) return console.error(err.message);
-    else console.log("Shorturls erased !");
+    if (err) {
+      res.sendStatus(500);
+    } else {
+      // Reseting the AUTO_INCREMENT index
+      db.run(
+        "UPDATE sqlite_sequence SET seq = 0 WHERE name LIKE 'urls'",
+        (err) => {
+          if (err) {
+            res.sendStatus(500);
+          } else {
+            res.sendStatus(200);
+          }
+        }
+      );
+    }
   });
+});
 
   // Reseting the AUTO_INCREMENT index
   db.run("UPDATE sqlite_sequence SET seq = 1 WHERE name LIKE 'urls'", (err) => {
