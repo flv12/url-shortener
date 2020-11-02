@@ -5,12 +5,15 @@
   "main": "server.js",
   "scripts": {
     "start": "npm run dev",
-    "build-dev": "parcel build src/index.html --out-dir dist",
-    "build-prod": "parcel build src/index.html --out-dir dist --no-source-maps",
-    "dev": "npm run build-dev && nodemon server.js",
-    "prod": "npm run build-prod && node server.js"
+    "clean": "rimraf dist/*",
+    "build-dev": "parcel build src/*.html --out-dir dist",
+    "build-prod": "parcel build src/*.html --out-dir dist --no-source-maps",
+    "dev": "npm run clean && npm run build-dev && nodemon server.js",
+    "prod": "npm run clean && npm run build-prod && node server.js",
+    "front": "npm run clean && parcel src/*.html --out-dir dist --host localhost --port 80"
   },
   "dependencies": {
+    "bcrypt": "^5.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "nanoid": "^3.1.15",
@@ -19,7 +22,8 @@
     "validator": "^13.1.17"
   },
   "devDependencies": {
-    "nodemon": "^2.0.6"
+    "nodemon": "^2.0.6",
+    "rimraf": "^3.0.2"
   },
   "engines": {
     "node": "12.x"
