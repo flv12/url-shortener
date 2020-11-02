@@ -1,6 +1,3 @@
-/* styles */
-/* called by your view template */
-
 * {
   box-sizing: border-box;
 }
@@ -38,6 +35,41 @@ input {
   text-align: center;
 }
 
-button {
+button.btn {
+  font-weight: bold;
+}
+
+.e404 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.e404 h1 {
+  color: #ffc107;
+  font-weight: bolder;
+  font-size: 7em;
+}
+
+.e404 h2 {
+  font-weight: bold;
+  font-size: 2.5em;
+}
+
+.e404 img {
+  max-width: 500px;
+}
+
+.e404 h2,
+.e404 a {
+  margin-top: 30px;
+}
+
+.e404 a {
+  max-width: 500px;
+  color: #323232;
   font-weight: bold;
 }

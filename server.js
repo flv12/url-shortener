@@ -67,7 +67,7 @@ app.post("/new", (req, res) => {
   }
 });
 
-app.get("/:slug", (req, res) => {
+app.get("/:slug", (req, res, next) => {
   // récupèrer le slug dans l'url avec req.params.slug
   const slug = htmlEscape(req.params.slug);
 
@@ -83,10 +83,15 @@ app.get("/:slug", (req, res) => {
         res.redirect(`https://www.${rows[0].redirectUrl}`);
       } else {
         // si slug non trouvé, redirigé vers une page "404, slug non trouvé"
-        // res.redirect("https://localhost/404");
+        req.url = "/404";
+        next();
       }
     });
   }
+});
+
+app.get("/404", (req, res) => {
+  res.sendFile(`${__dirname}/dist/404.html`);
 });
 
 app.delete("/clean", (req, res) => {
