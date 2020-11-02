@@ -1,5 +1,4 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const path = require("path");
 const app = express();
 const fs = require("fs");
@@ -38,6 +37,10 @@ function htmlEscape(text) {
     .replace(/'/g, "&#039;");
 }
 
+function urlCleaning(url) {
+  return url.replace(/https?(:\/\/)|www./g, "");
+}
+
 // http://expressjs.com/en/starter/basic-routing.html
 
 // ROUTES
@@ -47,6 +50,9 @@ app.get("/", (req, res) => {
 
 app.post("/new", (req, res) => {
   let url = htmlEscape(req.body.url);
+
+  // suppression des http(s):// et www.
+  url = urlCleaning(url);
 
   if (url.length != 0) {
     const nanoid = customAlphabet("1234567890abcdefghijklmnopqrstuvwxyz", 6);
@@ -102,15 +108,6 @@ app.delete("/clean", (req, res) => {
       );
     }
   });
-});
-
-  // Reseting the AUTO_INCREMENT index
-  db.run("UPDATE sqlite_sequence SET seq = 1 WHERE name LIKE 'urls'", (err) => {
-    if (err) return console.error(err.message);
-    else console.log(`Index have been reset to 1 !`);
-  });
-
-  res.sendStatus(200);
 });
 
 // requests listening
