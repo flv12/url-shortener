@@ -4,6 +4,7 @@ const app = express();
 const fs = require("fs");
 const dotenv = require("dotenv");
 const { customAlphabet } = require("nanoid");
+const bcrypt = require("bcrypt");
 
 dotenv.config();
 
@@ -39,6 +40,21 @@ function htmlEscape(text) {
 
 function urlCleaning(url) {
   return url.replace(/https?(:\/\/)|www./g, "");
+}
+
+// Recupere le hash admin, le compare avec password puis renvoie la résolution de la promise avec true/false
+async function checkIfAuthorized(password) {
+  const sql = "SELECT hash from keys WHERE username LIKE '_admin'";
+
+  return new Promise((resolve, reject) => {
+    db.all(sql, async (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(bcrypt.compare(password, rows[0].hash));
+      }
+    });
+  });
 }
 
 // http://expressjs.com/en/starter/basic-routing.html
@@ -94,23 +110,61 @@ app.get("/404", (req, res) => {
   res.sendFile(`${__dirname}/dist/404.html`);
 });
 
-app.delete("/clean", (req, res) => {
-  // Deleting all short links
-  db.run("DELETE FROM urls", (err) => {
-    if (err) {
-      res.sendStatus(500);
-    } else {
-      // Reseting the AUTO_INCREMENT index
-      db.run(
-        "UPDATE sqlite_sequence SET seq = 0 WHERE name LIKE 'urls'",
-        (err) => {
-          if (err) {
-            res.sendStatus(500);
-          } else {
-            res.sendStatus(200);
-          }
+app.delete("/clean", async (req, res) => {
+  const password = req.body.key;
+  if (!password) res.status(500).send("You don't have the right to do that !");
+
+  checkIfAuthorized(password).then((right) => {
+    if (right) {
+      // Deleting all short links
+      db.run("DELETE FROM urls", (err) => {
+        if (err) {
+          res.sendStatus(500);
+        } else {
+          // Reseting the AUTO_INCREMENT index
+          db.run(
+            "UPDATE sqlite_sequence SET seq = 0 WHERE name LIKE 'urls'",
+            (err) => {
+              if (err) {
+                res.sendStatus(500);
+              } else {
+                res.sendStatus(200);
+              }
+            }
+          );
         }
-      );
+      });
+    } else {
+      res.status(500).send("You don't have the right to do that !");
+    }
+  });
+});
+
+app.post("/list", async (req, res) => {
+  const password = req.body.key;
+  if (!password) res.status(500).send("You don't have the right to do that !");
+
+  checkIfAuthorized(password).then((right) => {
+    if (right) {
+      db.all("SELECT * from urls", (err, rows) => {
+        if (err) {
+          res.sendStatus(500);
+        }
+        if (rows.length === 0) {
+          res
+            .set("Content-Type", "text/plain")
+            .status(200)
+            .send("Database is empty");
+        } else {
+          res
+            .set("Content-Type", "application/json")
+            .json(rows)
+            .status(200)
+            .send();
+        }
+      });
+    } else {
+      res.status(500).send("You don't have the right to do that !");
     }
   });
 });
