@@ -10,7 +10,7 @@ dotenv.config();
 app.use(express.json());
 
 // http://expressjs.com/en/starter/static-files.html
-app.use(express.static("public"));
+app.use(express.static("dist"));
 
 // init sqlite db
 const dbPath = path.resolve(__dirname, "sqlite.db");
@@ -45,7 +45,7 @@ function urlCleaning(url) {
 
 // ROUTES
 app.get("/", (req, res) => {
-  res.sendFile(`${__dirname}/views/index.html`);
+  res.sendFile(`${__dirname}/dist/index.html`);
 });
 
 app.post("/new", (req, res) => {
