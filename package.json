@@ -19,7 +19,8 @@
     "nanoid": "^3.1.15",
     "parcel": "^1.12.4",
     "sqlite3": "^5.0.0",
-    "validator": "^13.1.17"
+    "validator": "^13.1.17",
+    "node-forge": "^0.10.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.6",
