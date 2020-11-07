@@ -1,4 +1,4 @@
-![URL Shortener](src\scissors_yellow.png "URL Shortener")
+<img src="https://i.ibb.co/g3rCxy0/scissors-yellow.png"/>
 
 # URL Shortener
 
