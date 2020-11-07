@@ -80,6 +80,8 @@ app.post("/new", (req, res) => {
     res.json({ slug: `/${slug}` });
 
     db.run(`INSERT INTO urls (slug, redirectUrl) VALUES ("${slug}","${url}")`);
+  } else {
+    res.status(500);
   }
 });
 
@@ -112,61 +114,65 @@ app.get("/404", (req, res) => {
 
 app.delete("/clean", async (req, res) => {
   const password = req.body.key;
-  if (!password) res.status(500).send("You don't have the right to do that !");
-
-  checkIfAuthorized(password).then((right) => {
-    if (right) {
-      // Deleting all short links
-      db.run("DELETE FROM urls", (err) => {
-        if (err) {
-          res.sendStatus(500);
-        } else {
-          // Reseting the AUTO_INCREMENT index
-          db.run(
-            "UPDATE sqlite_sequence SET seq = 0 WHERE name LIKE 'urls'",
-            (err) => {
-              if (err) {
-                res.sendStatus(500);
-              } else {
-                res.sendStatus(200);
+  if (!password) {
+    res.status(401).send("You don't have the right to do that !");
+  } else {
+    checkIfAuthorized(password).then((right) => {
+      if (right) {
+        // Deleting all short links
+        db.run("DELETE FROM urls", (err) => {
+          if (err) {
+            res.sendStatus(500);
+          } else {
+            // Reseting the AUTO_INCREMENT index
+            db.run(
+              "UPDATE sqlite_sequence SET seq = 0 WHERE name LIKE 'urls'",
+              (err) => {
+                if (err) {
+                  res.sendStatus(500);
+                } else {
+                  res.status(200).send("Database has been cleaned");
+                }
               }
-            }
-          );
-        }
-      });
-    } else {
-      res.status(500).send("You don't have the right to do that !");
-    }
-  });
+            );
+          }
+        });
+      } else {
+        res.status(401).send("You don't have the right to do that !");
+      }
+    });
+  }
 });
 
 app.post("/list", async (req, res) => {
   const password = req.body.key;
-  if (!password) res.status(500).send("You don't have the right to do that !");
-
-  checkIfAuthorized(password).then((right) => {
-    if (right) {
-      db.all("SELECT * from urls", (err, rows) => {
-        if (err) {
-          res.sendStatus(500);
-        }
-        if (rows.length === 0) {
-          res
-            .set("Content-Type", "text/plain")
-            .status(200)
-            .send("Database is empty");
-        } else {
-          res
-            .set("Content-Type", "application/json")
-            .json(rows)
-            .status(200)
-            .send();
-        }
-      });
-    } else {
-      res.status(500).send("You don't have the right to do that !");
-    }
-  });
+  if (!password) {
+    res.status(401).send("You don't have the right to do that !");
+  } else {
+    checkIfAuthorized(password).then((right) => {
+      if (right) {
+        db.all("SELECT * from urls", (err, rows) => {
+          if (err) {
+            res.sendStatus(500);
+          }
+          if (rows.length === 0) {
+            res
+              .set("Content-Type", "text/plain")
+              .status(200)
+              .send("Database is empty");
+          } else {
+            res
+              .set("Content-Type", "application/json")
+              .json(rows)
+              .status(200)
+              .send();
+          }
+        });
+      } else {
+        res.status(401).send("You don't have the right to do that !");
+      }
+    });
+  }
 });
 
 // requests listening
