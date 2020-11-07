@@ -179,3 +179,5 @@ app.post("/list", async (req, res) => {
 var listener = app.listen(process.env.PORT || 80, () => {
   console.log(`Listening on http://localhost:${listener.address().port} ...\n`);
 });
+
+module.exports = listener;
